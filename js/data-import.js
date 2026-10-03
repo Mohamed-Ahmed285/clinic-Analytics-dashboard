@@ -37,6 +37,7 @@ const ClinicImport = (() => {
     };
 
     const UNKNOWN = 'غير محدد';
+    const CASH_LABEL = 'نقدي';       // rows with no entity = patient paid at the clinic
     const HEADER_SEARCH_ROWS = 15;   // header may sit below a title row
 
     /* ---------- 2. Text / value helpers ---------- */
@@ -226,10 +227,14 @@ const ClinicImport = (() => {
             specialty: makeCanonicalizer(), doctor: makeCanonicalizer(),
             entity: makeCanonicalizer(), service: makeCanonicalizer(),
         };
+        canon.entity(CASH_LABEL);   // seed: spelling variants like "نقدى" merge into "نقدي"
         const cell = (row, field) => colMap[field] === -1 ? '' : row[colMap[field]];
+        const hasShares = colMap.patientShare !== -1 && colMap.entityShare !== -1;
 
         const records = [];
-        const stats = { total: 0, blank: 0, summary: 0, badDate: 0 };
+        const seenRows = new Set();
+        const stats = { total: 0, blank: 0, summary: 0, badDate: 0, cashFilled: 0,
+                        mismatch: 0, exactDup: 0, free: 0, footer: null };
 
         for (let i = headerIndex + 1; i < rows.length; i++) {
             const row = rows[i];
@@ -240,9 +245,25 @@ const ClinicImport = (() => {
             if (!date) {
                 // No date AND no patient = a totals/footer row (many HIS exports end with one)
                 const isSummary = !cleanText(cell(row, 'patientName')) && !cleanText(cell(row, 'patientCode'));
-                isSummary ? stats.summary++ : stats.badDate++;
+                if (isSummary) {
+                    stats.summary++;
+                    stats.footer = { price: parseNumber(cell(row, 'price')),
+                                     patientShare: parseNumber(cell(row, 'patientShare')),
+                                     entityShare: parseNumber(cell(row, 'entityShare')) };
+                } else stats.badDate++;
                 continue;
             }
+
+            const price = parseNumber(cell(row, 'price'));
+            const patientShare = parseNumber(cell(row, 'patientShare'));
+            const entityShare = parseNumber(cell(row, 'entityShare'));
+            const rawEntity = cleanText(cell(row, 'entity'));
+            if (colMap.entity !== -1 && !rawEntity) stats.cashFilled++;
+
+            if (price === 0) stats.free++;
+            if (hasShares && Math.abs(price - patientShare - entityShare) > 0.01) stats.mismatch++;
+            const fingerprint = row.map(cleanText).join('\u0001');
+            seenRows.has(fingerprint) ? stats.exactDup++ : seenRows.add(fingerprint);
 
             records.push({
                 invoice:      cleanText(cell(row, 'invoice')) || '-',
@@ -251,15 +272,22 @@ const ClinicImport = (() => {
                 specialty:    canon.specialty(cell(row, 'specialty')),
                 doctor:       canon.doctor(cell(row, 'doctor')),
                 service:      canon.service(cell(row, 'service')),
-                price:        parseNumber(cell(row, 'price')),
-                patientShare: parseNumber(cell(row, 'patientShare')),
-                entityShare:  parseNumber(cell(row, 'entityShare')),
-                entity:       canon.entity(cell(row, 'entity')),
+                price, patientShare, entityShare,
+                entity:       canon.entity(colMap.entity === -1 ? '' : (rawEntity || CASH_LABEL)),
                 date,
                 time:         parseTime(cell(row, 'time')),
             });
         }
         return { records, stats };
+    }
+
+    // Compare our sums with the totals row of the file itself (null = file has none)
+    function reconcile(records, footer) {
+        if (!footer) return null;
+        const sum = k => records.reduce((t, r) => t + r[k], 0);
+        const computed = { price: sum('price'), patientShare: sum('patientShare'), entityShare: sum('entityShare') };
+        const ok = Object.keys(computed).every(k => Math.abs(computed[k] - footer[k]) < 1);
+        return { ok, computed, footer };
     }
 
     /* ---------- 6. Orchestration ---------- */
@@ -292,6 +320,11 @@ const ClinicImport = (() => {
                 imported: records.length,
                 skippedBadDate: stats.badDate,
                 skippedSummary: stats.summary,
+                cashFilled: stats.cashFilled,
+                priceMismatch: stats.mismatch,
+                exactDuplicates: stats.exactDup,
+                free: stats.free,
+                reconcile: reconcile(records, stats.footer),
                 missingOptional: Object.entries(FIELDS)
                     .filter(([f, cfg]) => !cfg.required && colMap[f] === -1).map(([, cfg]) => cfg.label),
                 from: dates[0],
@@ -323,10 +356,8 @@ const ClinicImport = (() => {
             resetFilters(true);
             closeUploadModal();
 
-            let msg = `تم استيراد ${fmtNum(report.imported)} سجل (${report.from} ← ${report.to})`;
-            if (report.skippedBadDate) msg += ` — تم تخطي ${fmtNum(report.skippedBadDate)} صف بتاريخ غير صالح`;
-            showToast(msg, report.skippedBadDate ? 'info' : 'success');
-            if (report.skippedSummary) console.info(`Skipped ${report.skippedSummary} totals row(s)`);
+            showQualityReport(report);
+            showToast(`تم استيراد ${fmtNum(report.imported)} سجل (${report.from} ← ${report.to})`, 'success');
             if (report.missingOptional.length) {
                 console.info('Optional columns not found:', report.missingOptional.join(', '));
             }

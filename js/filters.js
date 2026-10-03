@@ -41,6 +41,7 @@ function applyGlobalFilters() {
     const searchTerm = document.getElementById('global-search').value.trim().toLowerCase();
     const selectedSpec = document.getElementById('filter-specialty').value;
     const selectedEntity = document.getElementById('filter-entity').value;
+    const selectedPayment = document.getElementById('filter-payment').value;
 
     filteredClinicData = rawClinicData.filter(row => {
         // Search term matching
@@ -57,7 +58,11 @@ function applyGlobalFilters() {
         // Entity filter
         const matchesEntity = selectedEntity === 'ALL' || row.entity === selectedEntity;
 
-        return matchesSearch && matchesSpec && matchesEntity;
+        // Payment filter: paid (price > 0) / free (price = 0)
+        const matchesPayment = selectedPayment === 'ALL' ||
+            (selectedPayment === 'free' ? !(row.price > 0) : row.price > 0);
+
+        return matchesSearch && matchesSpec && matchesEntity && matchesPayment;
     });
 
     // Update UI Badges
@@ -74,6 +79,7 @@ function resetFilters(silent = false) {
     document.getElementById('global-search').value = '';
     document.getElementById('filter-specialty').value = 'ALL';
     document.getElementById('filter-entity').value = 'ALL';
+    document.getElementById('filter-payment').value = 'ALL';
     applyGlobalFilters();
     if (!silent) showToast("تم إعادة ضبط جميع الفلاتر", "info");
 }

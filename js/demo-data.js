@@ -144,8 +144,7 @@ function generateDemoDataset() {
 
 
 function reloadDemoData() {
-    rawClinicData = generateDemoDataset();
+    // rawClinicData = generateDemoDataset();
     populateFilterOptions();
     resetFilters();
-    showToast("تم إعادة تحميل البيانات النموذجية الأصلية", "info");
 }

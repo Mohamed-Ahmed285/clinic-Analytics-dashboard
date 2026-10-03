@@ -4,7 +4,8 @@
 
 window.onload = function() {
     // Load Demo Data
-    rawClinicData = generateDemoDataset();
+    // rawClinicData = generateDemoDataset();
+    rawClinicData = [];
     filteredClinicData = [...rawClinicData];
 
     // Populate Filter Dropdowns
@@ -14,6 +15,6 @@ window.onload = function() {
     applyGlobalFilters();
 
     // Show Welcome Toast
-    showToast(`تم تحميل البيانات النموذجية (${rawClinicData.length.toLocaleString('ar-EG')} سجل) - ارفع ملفك من زر «رفع ملف»`, "info");
+    showToast(` ارفع ملفك من زر (رفع ملف)`, "info");
     initDropZone();
 };

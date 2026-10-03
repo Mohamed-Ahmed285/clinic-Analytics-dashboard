@@ -15,6 +15,7 @@ js/
   filters.js          filters, tabs, refresh
   views/              one file per tab (overview, doctors, patients, raw-data)
   upload-ui.js        upload modal + drag & drop
+  quality-report.js   data-quality report shown after each upload
   export.js           CSV export / print
   main.js             startup
 ```

@@ -27,6 +27,8 @@ function renderOverviewKPIs() {
     });
 
     // Update KPI DOM elements
+    const freeCount = filteredClinicData.filter(d => !(d.price > 0)).length;
+    document.getElementById('kpi-free-count').innerText = freeCount.toLocaleString('ar-EG');
     document.getElementById('kpi-total-visits').innerText = totalVisits.toLocaleString('ar-EG');
     document.getElementById('kpi-unique-patients').innerText = uniquePatients.toLocaleString('ar-EG');
     document.getElementById('kpi-frequency-rate').innerText = Number(frequencyRate).toLocaleString('ar-EG');
