@@ -144,7 +144,8 @@ function generateDemoDataset() {
 
 
 function reloadDemoData() {
-    // rawClinicData = generateDemoDataset();
+    rawClinicData = [];
     populateFilterOptions();
     resetFilters();
+    showToast("تم مسح الداتا ارفع ملفك من زر (رفع ملف)", "info");
 }

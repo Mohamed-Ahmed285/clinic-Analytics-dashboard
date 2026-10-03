@@ -18,7 +18,6 @@ function showQualityReport(r) {
     } else {
         add('info', 'لا يوجد صف إجمالي في الملف للمطابقة');
     }
-    if (r.skippedSummary) add('info', 'تم استبعاد صف الإجمالي من البيانات', 'حتى لا يُحتسب الإيراد مرتين');
     if (r.cashFilled) add('info', `${n(r.cashFilled)} صف بدون جهة اعتُبرت «نقدي»`, 'المريض دفع في العيادة');
     if (r.free) add('info', `${n(r.free)} خدمة سعرها صفر (مجانية)`, 'استخدم فلتر «مدفوع / مجاني» لفصلها');
     if (r.priceMismatch) add('warn', `${n(r.priceMismatch)} صف السعر فيه لا يساوي حصة المريض + حصة الجهة`, 'تستحق مراجعة في النظام المصدر');
