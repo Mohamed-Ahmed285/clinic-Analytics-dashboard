@@ -168,41 +168,59 @@
         <div id="view-overview" class="tab-content space-y-6">
 
             <!-- Key Metric Cards Row -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-                <!-- KPI 1: Total Visits -->
+                <!-- إجمالي الخدمات -->
                 <div class="glass-card rounded-2xl p-5 shadow-xs border border-slate-200/80 hover:shadow-md transition">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold text-slate-500">عدد الخدمات</span>
-                        <div
-                            class="w-8 h-8 rounded-xl bg-clinic-100 text-clinic-700 flex items-center justify-center text-sm">
-                            <i class="fa-solid fa-calendar-check"></i>
+                        <span class="text-xs font-bold text-slate-500">إجمالي الخدمات</span>
+                        <div class="w-8 h-8 rounded-xl bg-clinic-100 text-clinic-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-layer-group"></i>
                         </div>
                     </div>
                     <div class="text-2xl font-black text-slate-800" id="kpi-total-visits">0</div>
-                    <!-- <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                        <span class="text-emerald-600 font-bold"><i class="fa-solid fa-arrow-up text-[10px]"></i>
-                            100%</span>
-                        <span>إجمالي الحالات المسجلة</span>
-                    </p> -->
+                    <p class="text-xs text-slate-500 mt-1" id="kpi-total-sub">-</p>
                 </div>
 
-                <!-- KPI 2: Unique Patients -->
+                <!-- الكشوفات -->
                 <div class="glass-card rounded-2xl p-5 shadow-xs border border-slate-200/80 hover:shadow-md transition">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold text-slate-500">عدد الكشوفات</span>
-                        <div
-                            class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm">
-                            <i class="fa-solid fa-id-card"></i>
+                        <span class="text-xs font-bold text-slate-500">الكشوفات</span>
+                        <div class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-stethoscope"></i>
                         </div>
                     </div>
-                    <div class="text-2xl font-black text-indigo-900" id="kpi-visit-count">0</div>
-                    <p class="text-xs text-slate-500 mt-1" id="kpi-visit-split">-</p>
-                    <p class="text-xs text-slate-500 mt-0.5"><span class="font-bold text-indigo-700"
-                            id="kpi-unique-patients">0</span> مريض فريد • التردد <span class="font-bold text-indigo-700"
-                            id="kpi-frequency-rate">0.0</span> كشف/مريض</p>
+                    <div class="text-2xl font-black text-indigo-900" id="kpi-count-visit">0</div>
+                    <p class="text-xs text-slate-500 mt-1" id="kpi-pct-visit">-</p>
                 </div>
 
+                <!-- الاستشارات -->
+                <div class="glass-card rounded-2xl p-5 shadow-xs border border-slate-200/80 hover:shadow-md transition">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-500">الاستشارات</span>
+                        <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-comments"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-amber-800" id="kpi-count-consult">0</div>
+                    <p class="text-xs text-slate-500 mt-1" id="kpi-pct-consult">-</p>
+                </div>
+
+                <!-- إجراءات وخدمات أخرى -->
+                <div class="glass-card rounded-2xl p-5 shadow-xs border border-slate-200/80 hover:shadow-md transition">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-500">إجراءات وخدمات أخرى</span>
+                        <div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-briefcase-medical"></i>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-slate-700" id="kpi-count-other">0</div>
+                    <p class="text-xs text-slate-500 mt-1" id="kpi-pct-other">-</p>
+                </div>
+
+                </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <!-- KPI 3: Total Revenue -->
                 <div class="glass-card rounded-2xl p-5 shadow-xs border border-slate-200/80 hover:shadow-md transition">
                     <div class="flex items-center justify-between mb-2">

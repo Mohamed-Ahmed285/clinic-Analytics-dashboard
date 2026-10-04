@@ -4,34 +4,37 @@
 
 function renderOverviewKPIs() {
     const f0 = n => n.toLocaleString('ar-EG');
-    const totalServices = filteredClinicData.length;
-    const visits = Metrics.countVisits(filteredClinicData);
-    const uniquePatients = new Set(filteredClinicData.map(d => d.patientCode)).size;
-    const frequencyRate = uniquePatients > 0 ? (visits.total / uniquePatients).toFixed(2) : 0;
+    const total = filteredClinicData.length;
+
+    // Services by type: كشف + استشارة + أخرى always add up to the services total
+    const byType = { [SERVICE_TYPES.VISIT]: 0, [SERVICE_TYPES.CONSULT]: 0, [SERVICE_TYPES.PROCEDURE]: 0 };
+    filteredClinicData.forEach(d => { byType[d.serviceType] = (byType[d.serviceType] || 0) + 1; });
+    const pct = n => total ? `${(n / total * 100).toLocaleString('ar-EG', { maximumFractionDigits: 1 })}٪ من الخدمات` : '-';
 
     const totalRevenue = filteredClinicData.reduce((sum, d) => sum + (d.price || 0), 0);
     const totalPatientShare = filteredClinicData.reduce((sum, d) => sum + (d.patientShare || 0), 0);
     const totalEntityShare = filteredClinicData.reduce((sum, d) => sum + (d.entityShare || 0), 0);
 
-    // Top specialty by كشوفات
-    const bySpecialty = {};
-    filteredClinicData.forEach(d => { (bySpecialty[d.specialty] = bySpecialty[d.specialty] || []).push(d); });
+    // Top specialty by number of services
+    const specCounts = {};
+    filteredClinicData.forEach(d => { specCounts[d.specialty] = (specCounts[d.specialty] || 0) + 1; });
     let topSpec = "-", maxCount = 0;
-    Object.entries(bySpecialty).forEach(([spec, rows]) => {
-        const n = Metrics.countVisits(rows).total;
-        if (n > maxCount) { maxCount = n; topSpec = spec; }
-    });
+    Object.entries(specCounts).forEach(([spec, count]) => { if (count > maxCount) { maxCount = count; topSpec = spec; } });
 
-    document.getElementById('kpi-total-visits').innerText = f0(totalServices);
-    document.getElementById('kpi-visit-count').innerText = f0(visits.total);
-    document.getElementById('kpi-visit-split').innerText = `${f0(visits.paid)} كشف • ${f0(visits.consult)} استشارة`;
-    document.getElementById('kpi-unique-patients').innerText = f0(uniquePatients);
-    document.getElementById('kpi-frequency-rate').innerText = Number(frequencyRate).toLocaleString('ar-EG');
-    document.getElementById('kpi-total-revenue').innerText = `${f0(totalRevenue)} ج.م`;
-    document.getElementById('kpi-patient-share').innerText = `${f0(totalPatientShare)} ج.م`;
-    document.getElementById('kpi-entity-share').innerText = `${f0(totalEntityShare)} ج.م`;
-    document.getElementById('kpi-top-specialty').innerText = topSpec;
-    document.getElementById('kpi-top-specialty-count').innerText = `${f0(maxCount)} كشف واستشارة`;
+    const set = (id, v) => { document.getElementById(id).innerText = v; };
+    set('kpi-total-visits', f0(total));
+    set('kpi-total-sub', 'كل الخدمات المسجلة');
+    set('kpi-count-visit', f0(byType[SERVICE_TYPES.VISIT]));
+    set('kpi-pct-visit', pct(byType[SERVICE_TYPES.VISIT]));
+    set('kpi-count-consult', f0(byType[SERVICE_TYPES.CONSULT]));
+    set('kpi-pct-consult', pct(byType[SERVICE_TYPES.CONSULT]));
+    set('kpi-count-other', f0(byType[SERVICE_TYPES.PROCEDURE]));
+    set('kpi-pct-other', pct(byType[SERVICE_TYPES.PROCEDURE]));
+    set('kpi-total-revenue', `${f0(totalRevenue)} ج.م`);
+    set('kpi-patient-share', `${f0(totalPatientShare)} ج.م`);
+    set('kpi-entity-share', `${f0(totalEntityShare)} ج.م`);
+    set('kpi-top-specialty', topSpec);
+    set('kpi-top-specialty-count', `${f0(maxCount)} خدمة مسجلة`);
 }
 
 function renderOverviewCharts() {
@@ -44,7 +47,7 @@ function renderOverviewCharts() {
             labels: monthly.map(m => m.label),
             datasets: [
                 {
-                    label: 'عدد الكشوفات',
+                    label: 'عدد الخدمات',
                     data: monthly.map(m => m.visits),
                     backgroundColor: '#0d9488',
                     borderRadius: 8,
@@ -65,7 +68,7 @@ function renderOverviewCharts() {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: { position: 'right', title: { display: true, text: 'عدد الكشوفات' } },
+                y: { position: 'right', title: { display: true, text: 'عدد الخدمات' } },
                 y1: { position: 'left', grid: { drawOnChartArea: false }, title: { display: true, text: 'الإيرادات (ج.م)' } }
             }
         }

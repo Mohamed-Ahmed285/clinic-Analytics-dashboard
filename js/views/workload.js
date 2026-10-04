@@ -15,7 +15,7 @@ function renderSpecialtyWorkload() {
     const list = Metrics.specialtyWorkload(workloadData, days);
 
     document.getElementById('workload-caption').textContent =
-        `كشوفات مدفوعة مع طبيب ÷ ${f0(days.count)} يوم عمل للمستشفى في الفترة (الجمعة إجازة) • لا يتأثر بفلتر نوع الخدمة`;
+        `كشوفات مدفوعة مع طبيب (المريض يُحسب مرة لكل تخصص في اليوم) ÷ ${f0(days.count)} يوم عمل للمستشفى (الجمعة إجازة) • لا يتأثر بفلتر نوع الخدمة`;
 
     if (!list.length || !days.count) {
         host.innerHTML = '<div class="text-sm text-slate-400 py-6 text-center">لا توجد بيانات</div>';

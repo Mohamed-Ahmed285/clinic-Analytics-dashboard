@@ -50,7 +50,7 @@ function listMonths(rows) {
     });
 }
 
-// Per month: visits (كشوفات, see js/metrics.js) and revenue. Works for any period.
+// Per month: number of services and revenue. Works for any period.
 function aggregateByMonth(rows) {
     const byMonth = new Map();
     rows.forEach(r => {
@@ -62,7 +62,7 @@ function aggregateByMonth(rows) {
     return [...byMonth.keys()].sort().map(key => ({
         key,
         label: labels[key],
-        visits: Metrics.countVisits(byMonth.get(key)).total,
+        visits: byMonth.get(key).length,   // services (rows), same basis as the KPI cards
         revenue: byMonth.get(key).reduce((t, r) => t + (r.price || 0), 0),
     }));
 }
