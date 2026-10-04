@@ -37,6 +37,21 @@ const ClinicImport = (() => {
     };
 
     const UNKNOWN = 'غير محدد';
+    // Service type = how a service is counted. Matched on the START of the name, because
+    // "كشف استشاري العظام" contains both words. Anything not matched is a procedure.
+    const SERVICE_TYPE_RULES = [
+        { type: SERVICE_TYPES.VISIT,   startsWith: ['كشف'] },
+        { type: SERVICE_TYPES.CONSULT, startsWith: ['استشار'], equals: ['متابعه اسنان'] },
+    ];
+    function classifyService(name) {
+        const n = normalizeText(name);
+        for (const rule of SERVICE_TYPE_RULES) {
+            if ((rule.startsWith || []).some(p => n.startsWith(normalizeText(p))) ||
+                (rule.equals || []).some(e => n === normalizeText(e))) return rule.type;
+        }
+        return SERVICE_TYPES.PROCEDURE;
+    }
+
     const CASH_LABEL = 'نقدي';       // rows with no entity = patient paid at the clinic
     const HEADER_SEARCH_ROWS = 15;   // header may sit below a title row
 
@@ -265,13 +280,16 @@ const ClinicImport = (() => {
             const fingerprint = row.map(cleanText).join('\u0001');
             seenRows.has(fingerprint) ? stats.exactDup++ : seenRows.add(fingerprint);
 
+            const svc = canon.service(cell(row, 'service'));
+
             records.push({
                 invoice:      cleanText(cell(row, 'invoice')) || '-',
                 patientCode:  cleanText(cell(row, 'patientCode')) || '-',
                 patientName:  cleanText(cell(row, 'patientName')) || UNKNOWN,
                 specialty:    canon.specialty(cell(row, 'specialty')),
                 doctor:       canon.doctor(cell(row, 'doctor')),
-                service:      canon.service(cell(row, 'service')),
+                service:      svc,
+                serviceType:  classifyService(svc),
                 price, patientShare, entityShare,
                 entity:       canon.entity(colMap.entity === -1 ? '' : (rawEntity || CASH_LABEL)),
                 date,

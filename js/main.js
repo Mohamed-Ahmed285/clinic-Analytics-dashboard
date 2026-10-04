@@ -3,8 +3,6 @@
    ========================================================== */
 
 window.onload = function() {
-    // Load Demo Data
-    // rawClinicData = generateDemoDataset();
     rawClinicData = [];
     filteredClinicData = [...rawClinicData];
 

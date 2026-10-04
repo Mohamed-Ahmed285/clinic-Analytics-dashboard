@@ -42,18 +42,27 @@ function showToast(message, type = "info") {
 
 const ARABIC_MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
-// Group rows by YYYY-MM (chronological). Works for any period, not just one quarter.
+// Months present in the data, chronological: [{ key: '2026-07', label: 'يوليو 2026' }]
+function listMonths(rows) {
+    return [...new Set(rows.map(r => r.date.slice(0, 7)))].sort().map(key => {
+        const [y, m] = key.split('-');
+        return { key, label: `${ARABIC_MONTHS[+m - 1]} ${y}` };
+    });
+}
+
+// Per month: visits (كشوفات, see js/metrics.js) and revenue. Works for any period.
 function aggregateByMonth(rows) {
-    const map = new Map();
+    const byMonth = new Map();
     rows.forEach(r => {
         const key = r.date.slice(0, 7);
-        if (!map.has(key)) {
-            const [y, m] = key.split('-');
-            map.set(key, { key, label: `${ARABIC_MONTHS[+m - 1]} ${y}`, visits: 0, revenue: 0 });
-        }
-        const agg = map.get(key);
-        agg.visits++;
-        agg.revenue += r.price || 0;
+        if (!byMonth.has(key)) byMonth.set(key, []);
+        byMonth.get(key).push(r);
     });
-    return [...map.values()].sort((a, b) => a.key.localeCompare(b.key));
+    const labels = Object.fromEntries(listMonths(rows).map(m => [m.key, m.label]));
+    return [...byMonth.keys()].sort().map(key => ({
+        key,
+        label: labels[key],
+        visits: Metrics.countVisits(byMonth.get(key)).total,
+        revenue: byMonth.get(key).reduce((t, r) => t + (r.price || 0), 0),
+    }));
 }

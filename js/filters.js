@@ -24,6 +24,10 @@ function populateFilterOptions() {
         entitySelect.innerHTML += `<option value="${ent}">${ent}</option>`;
     });
 
+    // Months present in the data
+    document.getElementById('filter-month').innerHTML = '<option value="ALL">كل الأشهر</option>' +
+        listMonths(rawClinicData).map(m => `<option value="${m.key}">${m.label}</option>`).join('');
+
     updatePeriodLabel();
 }
 
@@ -41,9 +45,10 @@ function applyGlobalFilters() {
     const searchTerm = document.getElementById('global-search').value.trim().toLowerCase();
     const selectedSpec = document.getElementById('filter-specialty').value;
     const selectedEntity = document.getElementById('filter-entity').value;
-    const selectedPayment = document.getElementById('filter-payment').value;
+    const selectedMonth = document.getElementById('filter-month').value;
+    const selectedType = document.getElementById('filter-service-type').value;
 
-    filteredClinicData = rawClinicData.filter(row => {
+    workloadData = rawClinicData.filter(row => {
         // Search term matching
         const matchesSearch = !searchTerm || 
             (row.patientName && row.patientName.toLowerCase().includes(searchTerm)) ||
@@ -58,12 +63,16 @@ function applyGlobalFilters() {
         // Entity filter
         const matchesEntity = selectedEntity === 'ALL' || row.entity === selectedEntity;
 
-        // Payment filter: paid (price > 0) / free (price = 0)
-        const matchesPayment = selectedPayment === 'ALL' ||
-            (selectedPayment === 'free' ? !(row.price > 0) : row.price > 0);
+        // Month filter (single month, e.g. "2026-08")
+        const matchesMonth = selectedMonth === 'ALL' || row.date.startsWith(selectedMonth);
 
-        return matchesSearch && matchesSpec && matchesEntity && matchesPayment;
+        return matchesSearch && matchesSpec && matchesEntity && matchesMonth;
     });
+
+    // Service-type filter feeds the main views; the workload card always counts paid كشف
+    filteredClinicData = selectedType === 'ALL'
+        ? workloadData
+        : workloadData.filter(r => r.serviceType === selectedType);
 
     // Update UI Badges
     document.getElementById('badge-total-records').innerText = filteredClinicData.length.toLocaleString('ar-EG');
@@ -79,7 +88,8 @@ function resetFilters(silent = false) {
     document.getElementById('global-search').value = '';
     document.getElementById('filter-specialty').value = 'ALL';
     document.getElementById('filter-entity').value = 'ALL';
-    document.getElementById('filter-payment').value = 'ALL';
+    document.getElementById('filter-service-type').value = 'ALL';
+    document.getElementById('filter-month').value = 'ALL';
     applyGlobalFilters();
     if (!silent) showToast("تم إعادة ضبط جميع الفلاتر", "info");
 }
@@ -111,9 +121,11 @@ function switchTab(tabId) {
 }
 
 function refreshDashboardViews() {
+    if (!rawClinicData.length) return;   // nothing uploaded yet
     if (currentTab === 'overview') {
         renderOverviewKPIs();
         renderOverviewCharts();
+        renderSpecialtyWorkload();
     } else if (currentTab === 'doctors') {
         renderDoctorComparisonView();
     } else if (currentTab === 'patients') {

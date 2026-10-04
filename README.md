@@ -10,8 +10,8 @@ js/
   tailwind-config.js  Tailwind theme colours
   state.js            global state variables
   utils.js            toast, chart helper, aggregateByMonth()
-  demo-data.js        demo dataset generator
   data-import.js      Excel/CSV import  <-- edit this if your export format changes
+  metrics.js          definitions: services, visits (كشوفات), working days  <-- edit counting rules here
   filters.js          filters, tabs, refresh
   views/              one file per tab (overview, doctors, patients, raw-data)
   upload-ui.js        upload modal + drag & drop

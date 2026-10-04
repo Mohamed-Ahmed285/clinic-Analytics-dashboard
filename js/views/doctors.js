@@ -4,7 +4,7 @@
 
 function renderDoctorComparisonView() {
     const specSelect = document.getElementById('doctor-tab-specialty-select');
-    const selectedSpec = specSelect.value || Object.keys(DEMO_SPECIALTIES_DOCTORS)[0];
+    const selectedSpec = specSelect.value || (rawClinicData[0] && rawClinicData[0].specialty) || '';
 
     // Filter data for this specific specialty
     const specData = filteredClinicData.filter(d => d.specialty === selectedSpec);
