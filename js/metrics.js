@@ -44,12 +44,13 @@ const Metrics = (() => {
         return { count: set.size, set };
     }
 
-    // Paid كشف visits per specialty, averaged over the hospital's working days
-    function specialtyWorkload(rows, days) {
+    // Visits (patient + date + specialty) containing at least one of the selected service
+    // types, per specialty, averaged over the hospital's working days
+    function specialtyWorkload(rows, days, types) {
         const map = new Map();
         for (const r of rows) {
             if (!map.has(r.specialty)) map.set(r.specialty, { specialty: r.specialty, keys: new Set(), dates: new Set() });
-            if (r.serviceType === SERVICE_TYPES.VISIT) {
+            if (types.has(r.serviceType)) {
                 const s = map.get(r.specialty);
                 s.keys.add(visitKey(r));
                 if (days.set.has(r.date)) s.dates.add(r.date);

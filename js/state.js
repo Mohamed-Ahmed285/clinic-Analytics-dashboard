@@ -21,5 +21,10 @@ let workloadData = [];
 
 // ---- Shared configuration ----
 const SERVICE_TYPES = { VISIT: 'كشف', CONSULT: 'استشارة', PROCEDURE: 'إجراء' };
+const CASH_LABEL = 'نقدي';                  // entity name used for cash patients
+const NON_CASH_FILTER = '__NON_CASH__';     // entity-filter value: every entity except cash
 const WEEKLY_OFF_DAYS = [5];               // 0=Sunday ... 5=Friday
 const WORKLOAD_LOW_ACTIVITY_RATIO = 0.7;   // specialty flagged if it worked < 70% of working days
+
+// Workload table: which service types are counted (at least one stays active)
+let workloadTypes = new Set([SERVICE_TYPES.VISIT]);

@@ -20,6 +20,7 @@ function populateFilterOptions() {
     // Unique Entities
     const entities = Array.from(new Set(rawClinicData.map(d => d.entity))).sort();
     entitySelect.innerHTML = `<option value="ALL">جميع جهات العلاج والتأمين (${entities.length})</option>`;
+    entitySelect.innerHTML += `<option value="${NON_CASH_FILTER}">غير نقدي (كل الجهات ما عدا النقدي)</option>`;
     entities.forEach(ent => {
         entitySelect.innerHTML += `<option value="${ent}">${ent}</option>`;
     });
@@ -61,7 +62,8 @@ function applyGlobalFilters() {
         const matchesSpec = selectedSpec === 'ALL' || row.specialty === selectedSpec;
 
         // Entity filter
-        const matchesEntity = selectedEntity === 'ALL' || row.entity === selectedEntity;
+        const matchesEntity = selectedEntity === 'ALL' ||
+            (selectedEntity === NON_CASH_FILTER ? row.entity !== CASH_LABEL : row.entity === selectedEntity);
 
         // Month filter (single month, e.g. "2026-08")
         const matchesMonth = selectedMonth === 'ALL' || row.date.startsWith(selectedMonth);

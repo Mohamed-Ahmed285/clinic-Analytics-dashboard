@@ -52,7 +52,6 @@ const ClinicImport = (() => {
         return SERVICE_TYPES.PROCEDURE;
     }
 
-    const CASH_LABEL = 'نقدي';       // rows with no entity = patient paid at the clinic
     const HEADER_SEARCH_ROWS = 15;   // header may sit below a title row
 
     /* ---------- 2. Text / value helpers ---------- */

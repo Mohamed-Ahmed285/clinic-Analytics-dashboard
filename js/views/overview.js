@@ -21,6 +21,13 @@ function renderOverviewKPIs() {
     let topSpec = "-", maxCount = 0;
     Object.entries(specCounts).forEach(([spec, count]) => { if (count > maxCount) { maxCount = count; topSpec = spec; } });
 
+    // Cash vs non-cash (services + revenue)
+    const cashRows = filteredClinicData.filter(d => d.entity === CASH_LABEL);
+    const cashCount = cashRows.length, nonCashCount = total - cashCount;
+    const cashRevenue = cashRows.reduce((t, d) => t + (d.price || 0), 0);
+    const nonCashRevenue = totalRevenue - cashRevenue;
+    const p1 = (a, b) => b ? (a / b * 100).toLocaleString('ar-EG', { maximumFractionDigits: 1 }) : '٠';
+
     const set = (id, v) => { document.getElementById(id).innerText = v; };
     set('kpi-total-visits', f0(total));
     set('kpi-total-sub', 'كل الخدمات المسجلة');
@@ -33,6 +40,9 @@ function renderOverviewKPIs() {
     set('kpi-total-revenue', `${f0(totalRevenue)} ج.م`);
     set('kpi-patient-share', `${f0(totalPatientShare)} ج.م`);
     set('kpi-entity-share', `${f0(totalEntityShare)} ج.م`);
+    set('kpi-cash-text', `${f0(cashCount)} خدمة • ${f0(cashRevenue)} ج.م • ${p1(cashRevenue, totalRevenue)}٪`);
+    set('kpi-noncash-text', `${f0(nonCashCount)} خدمة • ${f0(nonCashRevenue)} ج.م • ${p1(nonCashRevenue, totalRevenue)}٪`);
+    document.getElementById('kpi-cash-bar').style.width = (totalRevenue ? cashRevenue / totalRevenue * 100 : 0) + '%';
     set('kpi-top-specialty', topSpec);
     set('kpi-top-specialty-count', `${f0(maxCount)} خدمة مسجلة`);
 }

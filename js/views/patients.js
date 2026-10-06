@@ -2,6 +2,17 @@
    Patients tab
    ========================================================== */
 
+// Reads a "show top N" selector (0 = all)
+function topN(selectId, list) {
+    const n = parseInt(document.getElementById(selectId).value, 10) || 0;
+    return n ? list.slice(0, n) : list;
+}
+
+// Horizontal bars grow with the number of items so labels stay readable
+function setChartHeight(canvasId, items) {
+    document.getElementById(canvasId).parentElement.style.height = Math.max(320, items * 28) + 'px';
+}
+
 function renderPatientAnalyticsView() {
     // Patient Count by Entity Chart
     const entityMap = {};
@@ -13,14 +24,16 @@ function renderPatientAnalyticsView() {
     const sortedEntities = Object.entries(entityMap)
         .map(([ent, set]) => ({ entity: ent, count: set.size }))
         .sort((a, b) => b.count - a.count);
+    const shownEntities = topN('top-entities-n', sortedEntities);
+    setChartHeight('chart-patients-by-entity', shownEntities.length);
 
     createOrUpdateChart('chart-patients-by-entity', {
         type: 'bar',
         data: {
-            labels: sortedEntities.map(e => e.entity),
+            labels: shownEntities.map(e => e.entity),
             datasets: [{
                 label: 'عدد المرضى الفريدين',
-                data: sortedEntities.map(e => e.count),
+                data: shownEntities.map(e => e.count),
                 backgroundColor: '#3b82f6',
                 borderRadius: 6
             }]
@@ -38,9 +51,9 @@ function renderPatientAnalyticsView() {
         serviceMap[d.service] = (serviceMap[d.service] || 0) + 1;
     });
 
-    const sortedServices = Object.entries(serviceMap)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
+    const sortedServices = topN('top-services-n', Object.entries(serviceMap).sort((a, b) => b[1] - a[1]));
+    const horizontalServices = sortedServices.length > 10;   // many bars read better horizontally
+    setChartHeight('chart-patients-by-service', horizontalServices ? sortedServices.length : 0);
 
     createOrUpdateChart('chart-patients-by-service', {
         type: 'bar',
@@ -55,7 +68,8 @@ function renderPatientAnalyticsView() {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            indexAxis: horizontalServices ? 'y' : 'x'
         }
     });
 
