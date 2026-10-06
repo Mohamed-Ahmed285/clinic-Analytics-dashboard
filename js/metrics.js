@@ -36,10 +36,10 @@ const Metrics = (() => {
     }
 
     // Same denominator for every specialty: hospital working days in the chosen period
-    function workingDays(rows, month = 'ALL') {
+    function workingDays(rows, month = 'ALL', includeOffDays = false) {
         const set = new Set();
         for (const r of rows) {
-            if ((month === 'ALL' || r.date.startsWith(month)) && !isWeeklyOff(r.date)) set.add(r.date);
+            if ((month === 'ALL' || r.date.startsWith(month)) && (includeOffDays || !isWeeklyOff(r.date))) set.add(r.date);
         }
         return { count: set.size, set };
     }

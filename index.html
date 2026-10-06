@@ -274,11 +274,14 @@
                             <i class="fa-solid fa-money-bill-wave"></i>
                         </div>
                     </div>
-                    <div class="h-2 rounded-full bg-indigo-200 overflow-hidden mb-2" title="الشريط الأخضر = نسبة الإيراد النقدي">
-                        <div id="kpi-cash-bar" class="h-full bg-emerald-500 transition-all" style="width:0%"></div>
-                    </div>
-                    <p class="text-xs text-slate-600"><span class="font-bold text-emerald-700">نقدي:</span> <span id="kpi-cash-text">-</span></p>
-                    <p class="text-xs text-slate-600 mt-0.5"><span class="font-bold text-indigo-700">غير نقدي:</span> <span id="kpi-noncash-text">-</span></p>
+                    <p class="text-[11px] font-bold text-slate-500 ">حسب عدد الخدمات</p>
+                    <div class="h-2 rounded-full bg-indigo-200 overflow-hidden my-1" title="الأخضر = نقدي"><div id="kpi-cash-count-bar" class="h-full bg-emerald-500 transition-all" style="width:0%"></div></div>
+                    <div class="flex justify-between text-xs text-slate-600"><span class="font-bold text-emerald-700">نقدي</span><span id="kpi-cash-count">-</span></div>
+                    <div class="flex justify-between text-xs text-slate-600"><span class="font-bold text-indigo-700">غير نقدي</span><span id="kpi-noncash-count">-</span></div>
+                    <p class="text-[11px] font-bold text-slate-500 mt-3">حسب الإيراد</p>
+                    <div class="h-2 rounded-full bg-indigo-200 overflow-hidden my-1" title="الأخضر = نقدي"><div id="kpi-cash-rev-bar" class="h-full bg-emerald-500 transition-all" style="width:0%"></div></div>
+                    <div class="flex justify-between text-xs text-slate-600"><span class="font-bold text-emerald-700">نقدي</span><span id="kpi-cash-rev">-</span></div>
+                    <div class="flex justify-between text-xs text-slate-600"><span class="font-bold text-indigo-700">غير نقدي</span><span id="kpi-noncash-rev">-</span></div>
                 </div>
 
             </div>
@@ -360,7 +363,7 @@
                     <div>
                         <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
                             <i class="fa-solid fa-gauge-high text-clinic-600"></i>
-                            متوسط الكشوفات اليومي لكل تخصص
+                            <span id="workload-title">متوسط الكشوفات اليومي لكل تخصص</span>
                         </h3>
                         <p class="text-xs text-slate-500" id="workload-caption"></p>
                     </div>
@@ -672,6 +675,15 @@
                 <input type="file" id="file-input" accept=".xlsx, .xls, .csv" onchange="handleFileSelect(event)"
                     class="hidden">
             </div>
+
+            <!-- Short period option -->
+            <label class="flex items-start gap-2.5 p-3.5 rounded-xl border border-amber-200 bg-amber-50/60 cursor-pointer text-xs text-slate-600">
+                <input type="checkbox" id="short-period-checkbox" class="mt-0.5 accent-amber-600">
+                <span>
+                    <span class="font-bold text-slate-800">هذا الملف لفترة قصيرة (يوم أو عدة أيام)</span><br>
+                    تُعرض أرقام الأقسام كإجماليات بدل المتوسط اليومي، وبدون تنبيه «أقل من 70% من الأيام».
+                </span>
+            </label>
 
             <!-- Expected File Headers Hint -->
             <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">

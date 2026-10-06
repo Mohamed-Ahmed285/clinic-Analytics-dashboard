@@ -38,7 +38,7 @@ function renderSpecialtyWorkload() {
     const f1 = n => n.toLocaleString('ar-EG', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
     const month = document.getElementById('filter-month').value;
-    const days = Metrics.workingDays(rawClinicData, month);
+    const days = Metrics.workingDays(rawClinicData, month, shortPeriodMode);
     const list = Metrics.specialtyWorkload(workloadData, days, workloadTypes);
 
     syncWorkloadButtons();
@@ -46,20 +46,24 @@ function renderSpecialtyWorkload() {
     const noun = selected.length === 1 ? WORKLOAD_TYPE_INFO[selected[0]].noun : 'زيارة';
     const what = selected.map(t => WORKLOAD_TYPE_INFO[t].caption).join(' + ');
 
-    document.getElementById('workload-caption').textContent =
-        `${what} (المريض يُحسب مرة لكل تخصص في اليوم) ÷ ${f0(days.count)} يوم عمل للمستشفى (الجمعة إجازة) • لا يتأثر بفلتر نوع الخدمة`;
+    document.getElementById('workload-title').textContent = shortPeriodMode
+        ? 'عدد الكشوفات لكل تخصص (فترة قصيرة)' : 'متوسط الكشوفات اليومي لكل تخصص';
+    document.getElementById('workload-caption').textContent = shortPeriodMode
+        ? `${what} (المريض يُحسب مرة لكل تخصص في اليوم) • فترة قصيرة (${f0(days.count)} يوم): الأرقام إجمالي الفترة وليست متوسطاً • لا يتأثر بفلتر نوع الخدمة`
+        : `${what} (المريض يُحسب مرة لكل تخصص في اليوم) ÷ ${f0(days.count)} يوم عمل للمستشفى (الجمعة إجازة) • لا يتأثر بفلتر نوع الخدمة`;
 
     if (!list.length || !days.count) {
         host.innerHTML = '<div class="text-sm text-slate-400 py-6 text-center">لا توجد بيانات</div>';
         return;
     }
 
-    const max = Math.max(...list.map(s => s.avgPerDay), 0.0001);
+    const metric = s => shortPeriodMode ? s.visits : s.avgPerDay;
+    const max = Math.max(...list.map(metric), 0.0001);
     const lowPct = Math.round(WORKLOAD_LOW_ACTIVITY_RATIO * 100);
 
     host.innerHTML = list.map(s => {
-        const low = s.activeDays / days.count < WORKLOAD_LOW_ACTIVITY_RATIO;
-        const width = s.avgPerDay > 0 ? Math.max(s.avgPerDay / max * 100, 1.5) : 0;
+        const low = !shortPeriodMode && s.activeDays / days.count < WORKLOAD_LOW_ACTIVITY_RATIO;
+        const width = metric(s) > 0 ? Math.max(metric(s) / max * 100, 1.5) : 0;
         return `
         <div class="grid grid-cols-12 gap-x-3 gap-y-0.5 items-center text-sm">
             <div class="col-span-12 sm:col-span-3 font-bold text-slate-700 truncate" title="${esc(s.specialty)}">${esc(s.specialty)}</div>
@@ -69,11 +73,11 @@ function renderSpecialtyWorkload() {
                 </div>
             </div>
             <div class="col-span-3 sm:col-span-2 text-left">
-                <span class="font-black text-slate-800">${f1(s.avgPerDay)}</span>
-                <span class="text-[11px] text-slate-400">${noun}/يوم</span>
+                <span class="font-black text-slate-800">${shortPeriodMode ? f0(s.visits) : f1(s.avgPerDay)}</span>
+                <span class="text-[11px] text-slate-400">${shortPeriodMode ? noun : noun + '/يوم'}</span>
             </div>
             <div class="col-span-12 sm:col-start-4 sm:col-span-9 text-[11px] text-slate-500 mb-1.5">
-                ${f0(s.visits)} ${noun} • اشتغل ${f0(s.activeDays)} من ${f0(days.count)} يوم
+                ${shortPeriodMode ? (days.count > 1 ? `اشتغل ${f0(s.activeDays)} من ${f0(days.count)} يوم` : '') : `${f0(s.visits)} ${noun} • اشتغل ${f0(s.activeDays)} من ${f0(days.count)} يوم`}
                 ${low ? `<span class="text-amber-600 font-bold">• أقل من ${f0(lowPct)}% من الأيام</span>` : ''}
             </div>
         </div>`;

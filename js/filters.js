@@ -37,9 +37,10 @@ function updatePeriodLabel() {
     const el = document.getElementById('period-label');
     if (!el || !rawClinicData.length) return;
     const months = aggregateByMonth(rawClinicData);
-    el.textContent = months.length > 1
+    const suffix = shortPeriodMode ? ' • فترة قصيرة' : '';
+    el.textContent = suffix ? `(${months[0].label}${months.length > 1 ? ' - ' + months[months.length - 1].label : ''})${suffix}` : (months.length > 1
         ? `(${months[0].label} - ${months[months.length - 1].label})`
-        : `(${months[0].label})`;
+        : `(${months[0].label})`);
 }
 
 function applyGlobalFilters() {

@@ -28,3 +28,6 @@ const WORKLOAD_LOW_ACTIVITY_RATIO = 0.7;   // specialty flagged if it worked < 7
 
 // Workload table: which service types are counted (at least one stays active)
 let workloadTypes = new Set([SERVICE_TYPES.VISIT]);
+
+// Set at upload time: file covers a very short period (e.g. one day) -> show totals, not daily averages
+let shortPeriodMode = false;

@@ -40,9 +40,12 @@ function renderOverviewKPIs() {
     set('kpi-total-revenue', `${f0(totalRevenue)} ج.م`);
     set('kpi-patient-share', `${f0(totalPatientShare)} ج.م`);
     set('kpi-entity-share', `${f0(totalEntityShare)} ج.م`);
-    set('kpi-cash-text', `${f0(cashCount)} خدمة • ${f0(cashRevenue)} ج.م • ${p1(cashRevenue, totalRevenue)}٪`);
-    set('kpi-noncash-text', `${f0(nonCashCount)} خدمة • ${f0(nonCashRevenue)} ج.م • ${p1(nonCashRevenue, totalRevenue)}٪`);
-    document.getElementById('kpi-cash-bar').style.width = (totalRevenue ? cashRevenue / totalRevenue * 100 : 0) + '%';
+    set('kpi-cash-count', `${f0(cashCount)} • ${p1(cashCount, total)}٪`);
+    set('kpi-noncash-count', `${f0(nonCashCount)} • ${p1(nonCashCount, total)}٪`);
+    set('kpi-cash-rev', `${f0(cashRevenue)} ج.م • ${p1(cashRevenue, totalRevenue)}٪`);
+    set('kpi-noncash-rev', `${f0(nonCashRevenue)} ج.م • ${p1(nonCashRevenue, totalRevenue)}٪`);
+    document.getElementById('kpi-cash-count-bar').style.width = (total ? cashCount / total * 100 : 0) + '%';
+    document.getElementById('kpi-cash-rev-bar').style.width = (totalRevenue ? cashRevenue / totalRevenue * 100 : 0) + '%';
     set('kpi-top-specialty', topSpec);
     set('kpi-top-specialty-count', `${f0(maxCount)} خدمة مسجلة`);
 }

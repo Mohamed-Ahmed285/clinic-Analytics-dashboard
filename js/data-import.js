@@ -361,6 +361,8 @@ const ClinicImport = (() => {
         if (!file) return;
         try {
             showToast(`جاري قراءة «${file.name}» ... قد يستغرق ملف كبير بضع ثوانٍ`, 'info');
+            const shortBox = document.getElementById('short-period-checkbox');
+            const wantsShort = !!(shortBox && shortBox.checked);
             await nextPaint();                    // let the toast render before heavy work
 
             await ensureSheetJS();
@@ -369,6 +371,9 @@ const ClinicImport = (() => {
 
             // Hand the data to the dashboard
             rawClinicData = records;
+            shortPeriodMode = wantsShort;          // only changes after a successful import
+            report.shortPeriod = wantsShort;
+            if (shortBox) shortBox.checked = false;
             populateFilterOptions();
             resetFilters(true);
             closeUploadModal();

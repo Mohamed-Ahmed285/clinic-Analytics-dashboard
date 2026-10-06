@@ -10,6 +10,8 @@ function showQualityReport(r) {
 
     add('ok', `تم استيراد ${n(r.imported)} سجل`, `الفترة: ${r.from} ← ${r.to}`);
 
+    if (r.shortPeriod) add('info', 'تم رفع الملف كـ «فترة قصيرة»', 'أرقام الأقسام معروضة كإجماليات وليست متوسطات يومية');
+
     if (r.reconcile) {
         const { ok, computed: c, footer: f } = r.reconcile;
         add(ok ? 'ok' : 'warn',
